@@ -1,0 +1,99 @@
+from tkinter import *
+import math
+
+def clear():
+    result_label['text'] = ''
+
+def get_digit(digit):
+    current = result_label['text']
+    new = current + str(digit)
+    result_label['text'] = new
+
+def get_operator(op):
+    current = result_label['text']
+    if current and current[-1] in '+-*/':
+        result_label['text'] = current[:-1] + op
+    else:
+        result_label['text'] = current + op
+
+def add_decimal():
+    current = result_label['text']
+    if current and current[-1].isdigit():
+        result_label['text'] = current + '.'
+
+def calculate():
+    try:
+        expression = result_label['text']
+        result = eval(expression)
+        result_label.config(text=str(round(result, 5)))
+    except ZeroDivisionError:
+        result_label.config(text='Error')
+    except Exception:
+        result_label.config(text='Invalid')
+
+def apply_function(func):
+    try:
+        expression = result_label['text']
+        value = eval(expression)
+        if func == 'sin':
+            result = math.sin(math.radians(value))
+        elif func == 'cos':
+            result = math.cos(math.radians(value))
+        elif func == 'tan':
+            result = math.tan(math.radians(value))
+        elif func == 'inv':
+            result = 1 / value
+        else:
+            result = value
+        result_label.config(text=str(round(result, 5)))
+    except ZeroDivisionError:
+        result_label.config(text='Error')
+    except Exception:
+        result_label.config(text='Invalid')
+
+root = Tk()
+root.title("Advanced Calculator")
+root.geometry("500x700")
+root.configure(bg="cyan")
+
+for i in range(4):
+    root.grid_columnconfigure(i, weight=1)
+    root.grid_rowconfigure(6, weight=1)
+
+result_label = Label(root, text='', bg="cyan", fg="black")
+result_label.grid(row=0, column=0, pady=(25, 25), columnspan=20, sticky=W)
+result_label.config(font=("calibri", 30, 'bold'))
+
+buttons = [
+    ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('+', 1, 3),('sin', 1, 4),
+    ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('-', 2, 3),('cos', 2, 4),
+    ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('*', 3, 3),('tan', 3, 4),
+    ('0', 4, 0), ('.', 4, 1), ('C', 4, 2), ('/', 4, 3),('1/x', 4, 4),
+
+    ('=', 5, 0, 5)
+]
+
+for btn in buttons:
+    if btn[0] == '=':
+        b = Button(root, text=btn[0], bg="green", fg="white", width=45, height=3, command=calculate)
+        b.grid(row=btn[1], column=btn[2], columnspan=btn[3])
+    elif btn[0] == 'C':
+        b = Button(root, text=btn[0], bg="purple4", fg="white", width=10, height=3, command=clear)
+        b.grid(row=btn[1], column=btn[2])
+    elif btn[0] in ('+', '-', '*', '/'):
+        b = Button(root, text=btn[0], bg="purple4", fg="white", width=10, height=3, command=lambda x=btn[0]: get_operator(x))
+        b.grid(row=btn[1], column=btn[2])
+    elif btn[0] in ('sin', 'cos', 'tan', '1/x'):
+        func_map = {'sin': 'sin', 'cos': 'cos', 'tan': 'tan', '1/x': 'inv'}
+        b = Button(root, text=btn[0], bg="orange", fg="white", width=10, height=3, command=lambda x=func_map[btn[0]]: apply_function(x))
+        b.grid(row=btn[1], column=btn[2])
+    elif btn[0] == '.':
+        b = Button(root, text=btn[0], bg="grey26", fg="white", width=10, height=3, command=add_decimal)
+        b.grid(row=btn[1], column=btn[2])
+    else:
+        b = Button(root, text=btn[0], bg="grey26", fg="white", width=10, height=3, command=lambda x=btn[0]: get_digit(x))
+        b.grid(row=btn[1], column=btn[2])
+
+    b.config(font=("calibri", 20))
+
+root.mainloop()
